@@ -66,4 +66,14 @@ class PollController extends Controller
         return response()->json(Poll::with("choices")->where("id",$pollId)->get());
     }
 
+    public function deletePoll($pollId) {
+        $poll = Poll::find($pollId);
+        if ($poll) {
+            $poll->delete();
+        } else {
+            return response()->json(["message"=>"poll not found"],422);
+        }
+        return response()->json(["message"=>"poll deleted"]);
+    }
+
 }

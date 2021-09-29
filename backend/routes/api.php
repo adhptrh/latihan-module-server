@@ -52,6 +52,7 @@ Route::group([
         "middleware"=>"auth:admin"
     ], function() {
         Route::post("", 'PollController@createPoll');
+        Route::delete("/{pollId}", 'PollController@deletepoll');
     });
 
 });
