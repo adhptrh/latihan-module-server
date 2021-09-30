@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Choice;
 use App\Models\Poll;
+use App\Models\User;
 use App\Models\Vote;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\Expr;
 
 class PollController extends Controller
 {
@@ -57,13 +59,25 @@ class PollController extends Controller
 
         $userVoted = Vote::where("user_id",$user->id)->get();
 
+        $polls = Poll::with(["users:username","choices"])->deadline()->get()->toArray();
+
+        for ($i=0;$i<count($polls);$i++) {
+            $result = $this->getPollResult($polls[$i]["id"]);
+            $polls[$i]["result"] = $result;
+        }
+
         if ($user->role == "admin" || $userVoted) {
-            return response()->json(Poll::with(["users:username","choices"])->deadline()->get()->toArray());
+            return response()->json($polls);
         }
     }
 
     public function getAPoll($pollId) {
-        return response()->json(Poll::with("choices")->where("id",$pollId)->get());
+        $result = $this->getPollResult($pollId);
+
+        $response = Poll::with("choices")->where("id",$pollId)->get()[0]->toArray();
+        array_push($response,$result);
+
+        return response()->json($response);
     }
 
     public function deletePoll($pollId) {
@@ -74,6 +88,51 @@ class PollController extends Controller
             return response()->json(["message"=>"poll not found"],422);
         }
         return response()->json(["message"=>"poll deleted"]);
+    }
+
+    public function getPollResult($pollId) {
+
+        $countres = DB::select("SELECT choices.id as choice_id,votes.user_id,choice,votes.division_id,count(votes.id) as count from choices inner join votes on choices.id=votes.choice_id where choices.poll_id=? group by votes.user_id,choices.id,choice,votes.division_id;",[$pollId]);
+
+
+        $max = [];
+
+        foreach ($countres as $divote) {
+            try {
+                if ($divote->count > $max["div".$divote->division_id]["count"]) {
+                    $max["div".$divote->division_id] = [
+                        "count"=>$divote->count,
+                        "point"=>1,
+                        "user_id"=>$divote->user_id,
+                        "dupe"=>[],
+                        "choice"=>$divote->choice_id
+                    ];
+                }
+            } catch (Exception $e) {
+                $max["div".$divote->division_id] = [
+                    "count"=>$divote->count,
+                    "user_id"=>$divote->user_id,
+                    "point"=>1,
+                    "dupe"=>[],
+                    "choice"=>$divote->choice_id
+                ];
+            }
+        }
+
+        
+        foreach ($countres as $divote) {
+            if ($max["div".$divote->division_id]["count"] == $divote->count && $max["div".$divote->division_id]["choice"] != $divote->choice_id) {
+                array_push($max["div".$divote->division_id]["dupe"], $divote);
+            }
+        }
+
+        foreach ($max as $m=>$v) {
+            if (count($v["dupe"]) > 0) {
+                $max[$m]["point"] = 1/(count($max[$m]["dupe"])+1);
+            }
+        }
+
+        return $max;
     }
 
 }
