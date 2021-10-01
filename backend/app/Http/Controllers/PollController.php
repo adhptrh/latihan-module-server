@@ -59,11 +59,12 @@ class PollController extends Controller
 
         $userVoted = Vote::where("user_id",$user->id)->get();
 
-        $polls = Poll::with(["users:username","choices"])->deadline()->get()->toArray();
+        $polls = Poll::with(["choices"])->deadline()->get()->toArray();
 
         for ($i=0;$i<count($polls);$i++) {
             $result = $this->getPollResult($polls[$i]["id"]);
             $polls[$i]["result"] = $result;
+            $polls[$i]["creator"] = User::find($polls[$i]["created_by"])->username;
         }
 
         if ($user->role == "admin" || $userVoted) {
@@ -73,11 +74,19 @@ class PollController extends Controller
 
     public function getAPoll($pollId) {
         $result = $this->getPollResult($pollId);
+        $user = auth()->user();
 
-        $response = Poll::with("choices")->where("id",$pollId)->get()[0]->toArray();
-        array_push($response,$result);
+        $userVoted = Vote::where("user_id",$user->id)->get();
 
-        return response()->json($response);
+        $response = Poll::with("choices")->where("id",$pollId)->deadline()->get()[0]->toArray();
+
+        $response["result"] = $result;
+        $response["creator"] = User::find($response["created_by"])->username;
+
+
+        if ($user->role == "admin" || $userVoted) {
+            return response()->json($response);
+        }
     }
 
     public function deletePoll($pollId) {
@@ -94,45 +103,58 @@ class PollController extends Controller
 
         $countres = DB::select("SELECT choices.id as choice_id,votes.user_id,choice,votes.division_id,count(votes.id) as count from choices inner join votes on choices.id=votes.choice_id where choices.poll_id=? group by votes.user_id,choices.id,choice,votes.division_id;",[$pollId]);
 
+        $divisionsVoted = [];
+        $grouped = [];
+        $result = [];
 
-        $max = [];
+        foreach ($countres as $div) {
+            if (!in_array($div->division_id,$divisionsVoted)) {
+                array_push($divisionsVoted,$div->division_id);
+                $grouped[$div->division_id]["winner"] = [];
+            }
+        }
 
-        foreach ($countres as $divote) {
-            try {
-                if ($divote->count > $max["div".$divote->division_id]["count"]) {
-                    $max["div".$divote->division_id] = [
-                        "count"=>$divote->count,
-                        "point"=>1,
-                        "user_id"=>$divote->user_id,
-                        "dupe"=>[],
-                        "choice"=>$divote->choice_id
+        foreach ($divisionsVoted as $div) {
+            foreach($countres as $divv) {
+                if ($div == $divv->division_id) {
+                    array_push($grouped[$div]["winner"], $divv);
+                }
+            }
+        }
+
+        foreach ($grouped as $k=>$v) {
+            $grouped[$k]["rawpoint"] = 1/count($grouped[$k]["winner"]);
+        }
+
+        foreach ($grouped as $k=>$v) {
+            foreach ($v["winner"] as $kk=>$vv) {
+                try {
+                    $result[$vv->choice_id]["point"] += $v["rawpoint"];
+                } catch (Exception $e) {
+                    $result[$vv->choice_id] = [
+                        "point"=>$v["rawpoint"],
+                        "id"=>$vv->choice_id,
+                        "choice"=>$vv->choice
                     ];
                 }
-            } catch (Exception $e) {
-                $max["div".$divote->division_id] = [
-                    "count"=>$divote->count,
-                    "user_id"=>$divote->user_id,
-                    "point"=>1,
-                    "dupe"=>[],
-                    "choice"=>$divote->choice_id
-                ];
             }
         }
 
-        
-        foreach ($countres as $divote) {
-            if ($max["div".$divote->division_id]["count"] == $divote->count && $max["div".$divote->division_id]["choice"] != $divote->choice_id) {
-                array_push($max["div".$divote->division_id]["dupe"], $divote);
+        $finalResult = [];
+
+        foreach ($result as $k=>$v) {
+            $dividedBy = 0;
+            foreach ($result as $kk=>$vv) {
+                $dividedBy += $vv["point"];
             }
+            array_push($finalResult, [
+                "id"=>$result[$k]["id"],
+                "choice"=>$result[$k]["choice"],
+                "point"=>$result[$k]["point"]/($dividedBy)*100
+            ]);
         }
 
-        foreach ($max as $m=>$v) {
-            if (count($v["dupe"]) > 0) {
-                $max[$m]["point"] = 1/(count($max[$m]["dupe"])+1);
-            }
-        }
-
-        return $max;
+        return $finalResult;
     }
 
 }
