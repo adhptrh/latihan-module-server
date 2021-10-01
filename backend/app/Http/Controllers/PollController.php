@@ -73,12 +73,19 @@ class PollController extends Controller
     }
 
     public function getAPoll($pollId) {
+
+
         $result = $this->getPollResult($pollId);
         $user = auth()->user();
 
         $userVoted = Vote::where("user_id",$user->id)->get();
+        $response = Poll::with("choices")->where("id",$pollId)->deadline()->count();
+        if (!$response) {
+            return response()->json([]);
+        }
 
-        $response = Poll::with("choices")->where("id",$pollId)->deadline()->get()[0]->toArray();
+
+        $response = $response[0]->toArray();
 
         $response["result"] = $result;
         $response["creator"] = User::find($response["created_by"])->username;
