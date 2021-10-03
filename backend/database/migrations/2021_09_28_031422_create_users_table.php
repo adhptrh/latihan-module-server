@@ -76,6 +76,20 @@ class CreateUsersTable extends Migration
         $user->role = "user";
         $user->division_id = 1;
         $user->save();
+
+        /* $user = new User();
+        $user->username = "payment2";
+        $user->password = Hash::make("user");
+        $user->role = "user";
+        $user->division_id = 1;
+        $user->save(); */
+
+        /* $user = new User();
+        $user->username = "payment3";
+        $user->password = Hash::make("user");
+        $user->role = "user";
+        $user->division_id = 1;
+        $user->save(); */
     }
 
     /**

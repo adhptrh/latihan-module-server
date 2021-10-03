@@ -107,60 +107,38 @@ class PollController extends Controller
     }
 
     public function getPollResult($pollId) {
+        $divisions = DB::select("select votes.division_id from choices inner join votes on votes.choice_id = choices.id where choices.poll_id = ? group by votes.division_id", [$pollId]);
 
-        $countres = DB::select("SELECT choices.id as choice_id,votes.user_id,choice,votes.division_id,count(votes.id) as count from choices inner join votes on choices.id=votes.choice_id where choices.poll_id=? group by votes.user_id,choices.id,choice,votes.division_id;",[$pollId]);
-
-        $divisionsVoted = [];
-        $grouped = [];
         $result = [];
-
-        foreach ($countres as $div) {
-            if (!in_array($div->division_id,$divisionsVoted)) {
-                array_push($divisionsVoted,$div->division_id);
-                $grouped[$div->division_id]["winner"] = [];
-            }
-        }
-
-        foreach ($divisionsVoted as $div) {
-            foreach($countres as $divv) {
-                if ($div == $divv->division_id) {
-                    array_push($grouped[$div]["winner"], $divv);
-                }
-            }
-        }
-
-        foreach ($grouped as $k=>$v) {
-            $grouped[$k]["rawpoint"] = 1/count($grouped[$k]["winner"]);
-        }
-
-        foreach ($grouped as $k=>$v) {
-            foreach ($v["winner"] as $kk=>$vv) {
-                try {
-                    $result[$vv->choice_id]["point"] += $v["rawpoint"];
-                } catch (Exception $e) {
-                    $result[$vv->choice_id] = [
-                        "point"=>$v["rawpoint"],
-                        "id"=>$vv->choice_id,
-                        "choice"=>$vv->choice
-                    ];
-                }
-            }
-        }
-
+        $dividedBy = 0;
         $finalResult = [];
 
-        foreach ($result as $k=>$v) {
-            $dividedBy = 0;
-            foreach ($result as $kk=>$vv) {
-                $dividedBy += $vv["point"];
-            }
-            array_push($finalResult, [
-                "id"=>$result[$k]["id"],
-                "choice"=>$result[$k]["choice"],
-                "point"=>$result[$k]["point"]/($dividedBy)*100
-            ]);
+        foreach (Choice::where("poll_id",$pollId)->get() as $k=>$v) {
+            array_push($finalResult,["choice_id"=>$v->id, "choice"=>$v->choice,"point"=>0]);
         }
 
+        foreach ($divisions as $division) {
+            $res = DB::select("SELECT * FROM ( SELECT votes.choice_id,count(votes.id) as vote_count FROM votes WHERE poll_id = ? and division_id = ? GROUP BY votes.choice_id ) as a JOIN ( SELECT MAX(a.vote_count) as max_vote FROM ( SELECT votes.choice_id, votes.division_id,count(votes.id) as vote_count FROM votes WHERE poll_id = ? and division_id = ? GROUP BY votes.choice_id, votes.division_id ) as a ) as b WHERE a.vote_count = b.max_vote",[$pollId,$division->division_id,$pollId,$division->division_id]);
+            foreach ($res as $ress) {
+                try {
+                    $result[$ress->choice_id]["rpoint"] += 1/count($res);
+                } catch (Exception $e) {
+                    $result[$ress->choice_id]["rpoint"] = 1/count($res);
+                }
+            }
+        }
+
+        foreach ($result as $v) {
+            $dividedBy += $v["rpoint"];
+        }
+
+        foreach ($result as $k=>$v) {
+            foreach ($finalResult as $kk=>$vv) {
+                if ($vv['choice_id'] == $k) {
+                    $finalResult[$kk]["point"]=$result[$k]["rpoint"]/$dividedBy*100;
+                }
+            }
+        }
         return $finalResult;
     }
 
