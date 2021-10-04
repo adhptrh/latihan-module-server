@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -48,7 +49,7 @@ class AuthController extends Controller
 
         $user = auth()->user();
         $user->password = Hash::make($newPassword);
-        \DB::transaction(function () use ($user) {
+        DB::transaction(function () use ($user) {
             $user->save();
         });
 
@@ -57,10 +58,12 @@ class AuthController extends Controller
 
     protected function respondWithToken($token)
     {
+        $isPasswordDefault = auth()->user()->created_at == auth()->user()->updated_at;
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60 * 24
+            'expires_in' => auth()->factory()->getTTL() * 60 * 24,
+            'default_password'=>$isPasswordDefault
         ]);
     }
 

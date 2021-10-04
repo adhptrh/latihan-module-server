@@ -114,7 +114,10 @@ class PollController extends Controller
         $finalResult = [];
 
         foreach (Choice::where("poll_id",$pollId)->get() as $k=>$v) {
-            array_push($finalResult,["choice_id"=>$v->id, "choice"=>$v->choice,"point"=>0]);
+            array_push($finalResult,[
+                "choice_id"=>$v->id,
+                 "choice"=>$v->choice,
+                 "point"=>0]);
         }
 
         foreach ($divisions as $division) {
@@ -135,7 +138,7 @@ class PollController extends Controller
         foreach ($result as $k=>$v) {
             foreach ($finalResult as $kk=>$vv) {
                 if ($vv['choice_id'] == $k) {
-                    $finalResult[$kk]["point"]=$result[$k]["rpoint"]/$dividedBy*100;
+                    $finalResult[$kk]["point"]=floatval(number_format($result[$k]["rpoint"]/$dividedBy*100,2));
                 }
             }
         }
