@@ -1,24 +1,19 @@
 <template>
-    <div id="main">
-        <header id="header">
-            <h1>
-                Laravel Vue SPA
-            </h1>
-        </header>
-        <div id="content">
-            <router-view></router-view>
-        </div>
-    </div>
+  <div id="app">
+    <router-view/>
+  </div>
 </template>
+
 <script>
-  export default {
-    data() {
-      return {
-        //
-      }
-    },
-    components: {
-        //
-    }
+
+export default {
+  name: 'App',
+  components: {
+    
   }
+}
 </script>
+
+<style>
+
+</style>
