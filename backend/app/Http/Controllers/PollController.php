@@ -59,11 +59,15 @@ class PollController extends Controller
 
         $userVoted = Vote::where("user_id",$user->id)->get();
 
-        $polls = Poll::with(["choices"])->deadline()->get()->toArray();
+        $polls = Poll::with(["choices"])->get()->toArray();
 
         for ($i=0;$i<count($polls);$i++) {
-            $result = $this->getPollResult($polls[$i]["id"]);
-            $polls[$i]["result"] = $result;
+			$today = date("Y-m-d H:i:s");
+			$date = $polls[$i]["deadline"];
+			if ($date < $today || $user->role == "admin") {
+				$result = $this->getPollResult($polls[$i]["id"]);
+				$polls[$i]["result"] = $result;
+			}
             $polls[$i]["creator"] = User::find($polls[$i]["created_by"])->username;
         }
 

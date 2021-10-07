@@ -1,11 +1,11 @@
-import Vue from 'vue'
+import Vue       from 'vue'
 import VueRouter from 'vue-router'
 import Login from './page/auth/Login.vue'
 import App from './App.vue'
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
-export default new VueRouter({
+Vue.router = new VueRouter({
     history: true,
     mode: 'history',
     routes: [
@@ -25,3 +25,4 @@ export default new VueRouter({
         }
     ]
 });
+export default Vue.router;
