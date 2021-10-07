@@ -57,23 +57,20 @@ class PollController extends Controller
     public function getAllPoll() {
         $user = auth()->user();
 
-        $userVoted = Vote::where("user_id",$user->id)->get();
-
         $polls = Poll::with(["choices"])->get()->toArray();
 
         for ($i=0;$i<count($polls);$i++) {
 			$today = date("Y-m-d H:i:s");
 			$date = $polls[$i]["deadline"];
-			if ($date < $today || $user->role == "admin") {
+            $userVoted = Vote::where("user_id",$user->id)->where("poll_id",$polls[$i]["id"])->get();
+			if ($date < $today || $user->role == "admin" || count($userVoted) > 0) {
 				$result = $this->getPollResult($polls[$i]["id"]);
 				$polls[$i]["result"] = $result;
 			}
             $polls[$i]["creator"] = User::find($polls[$i]["created_by"])->username;
         }
 
-        if ($user->role == "admin" || $userVoted) {
-            return response()->json($polls);
-        }
+        return response()->json($polls);
     }
 
     public function getAPoll($pollId) {
@@ -82,17 +79,20 @@ class PollController extends Controller
         $result = $this->getPollResult($pollId);
         $user = auth()->user();
 
-        $userVoted = Vote::where("user_id",$user->id)->get();
-        $response = Poll::with("choices")->where("id",$pollId)->deadline()->count();
+        $userVoted = Vote::where("user_id",$user->id)->where("poll_id",$pollId)->get();
+        $response = Poll::with("choices")->where("id",$pollId)->count();
         if (!$response) {
             return response()->json([]);
         }
 
-
         $response = $response[0]->toArray();
 
-        $response["result"] = $result;
-        $response["creator"] = User::find($response["created_by"])->username;
+        $today = date("Y-m-d H:i:s");
+        $date = $response["deadline"];
+        if ($date < $today || $user->role == "admin" || count($userVoted) > 0) {
+            $response["result"] = $result;
+            $response["creator"] = User::find($response["created_by"])->username;
+        }
 
 
         if ($user->role == "admin" || $userVoted) {

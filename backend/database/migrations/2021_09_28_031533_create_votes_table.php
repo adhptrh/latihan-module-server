@@ -77,13 +77,6 @@ class CreateVotesTable extends Migration
         $vote->poll_id = 1;
         $vote->division_id = 3;
         $vote->save();
-
-        $vote = new Vote();
-        $vote->choice_id = 2;
-        $vote->user_id = 2;
-        $vote->poll_id = 1;
-        $vote->division_id = 3;
-        $vote->save();
     }
 
     /**
