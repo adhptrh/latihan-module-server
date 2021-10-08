@@ -36,20 +36,6 @@ class CreateVotesTable extends Migration
         $vote->division_id = 1;
         $vote->save();
 
-        /* $vote = new Vote();
-        $vote->choice_id = 2;
-        $vote->user_id = 8;
-        $vote->poll_id = 1;
-        $vote->division_id = 1;
-        $vote->save();
-
-        $vote = new Vote();
-        $vote->choice_id = 1;
-        $vote->user_id = 9;
-        $vote->poll_id = 1;
-        $vote->division_id = 1;
-        $vote->save(); */
-
         $vote = new Vote();
         $vote->choice_id = 1;
         $vote->user_id = 4;
@@ -74,6 +60,13 @@ class CreateVotesTable extends Migration
         $vote = new Vote();
         $vote->choice_id = 1;
         $vote->user_id = 2;
+        $vote->poll_id = 1;
+        $vote->division_id = 3;
+        $vote->save();
+
+        $vote = new Vote();
+        $vote->choice_id = 2;
+        $vote->user_id = 3;
         $vote->poll_id = 1;
         $vote->division_id = 3;
         $vote->save();

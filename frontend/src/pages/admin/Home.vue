@@ -8,10 +8,10 @@
                 <p v-if="!pollsLoading && polls.length < 1">You dont have any polls, create one.</p>
                 <div v-for="n,index in polls" :key="index" style="max-width: 300px;" class="p-0 m-2 text-start rounded shadow-sm">
                     <div class="d-flex flex-column">
-                        <div class="bg-primary p-3" style="border-radius: 7px 7px 0px 0px;">
+                        <button @click="$router.push('/poll/'+n.id)" class="btn text-start bg-primary p-3" style="border-radius: 7px 7px 0px 0px;">
                             <p class="fw-bold text-white mb-0">{{shortText(n.title,30)}}</p>
                             <p class="mb-0 text-white">{{shortText(n.description,30)}}</p>
-                        </div>
+                        </button>
                         <div class="d-flex flex-column bg-white p-2 px-3 rounded">
                             <p class="mb-0 mt-0">Creator: <span class="fw-bold">{{n.creator}}</span></p>
                             <div class="d-flex justify-content-end">

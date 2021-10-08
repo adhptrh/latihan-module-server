@@ -80,8 +80,8 @@ class PollController extends Controller
         $user = auth()->user();
 
         $userVoted = Vote::where("user_id",$user->id)->where("poll_id",$pollId)->get();
-        $response = Poll::with("choices")->where("id",$pollId)->count();
-        if (!$response) {
+        $response = Poll::with("choices")->where("id",$pollId)->get();
+        if (count($response) < 1) {
             return response()->json([]);
         }
 
@@ -91,8 +91,8 @@ class PollController extends Controller
         $date = $response["deadline"];
         if ($date < $today || $user->role == "admin" || count($userVoted) > 0) {
             $response["result"] = $result;
-            $response["creator"] = User::find($response["created_by"])->username;
         }
+        $response["creator"] = User::find($response["created_by"])->username;
 
 
         if ($user->role == "admin" || $userVoted) {

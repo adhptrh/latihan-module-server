@@ -3,7 +3,7 @@
         <div class="mx-5 bg-white p-3 rounded shadow">
             <p class="fw-bold">Voting</p>
             <div class="d-flex flex-wrap">
-                <button v-for="n in polls" :key="n" style="max-width: 300px;" class="btn p-0 m-2 text-start rounded shadow-sm">
+                <button @click="$router.push('vote/'+n.id)" v-for="n in polls" :key="n" style="max-width: 300px;" class="btn p-0 m-2 text-start rounded shadow-sm">
                     <div class="d-flex flex-column">
                         <div class="bg-primary p-3" style="border-radius: 7px 7px 0px 0px;">
                             <p class="fw-bold text-white mb-0">{{shortText(n.title,30)}}</p>

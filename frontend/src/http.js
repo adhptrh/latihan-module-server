@@ -4,7 +4,7 @@ import VueAxios from "vue-axios";
 
 const config = axios.create({
     baseURL:"http://localhost:8000/api/",
-    timeout:10000
+    timeout:30000
 })
 
 config.interceptors.request.use(

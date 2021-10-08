@@ -5,6 +5,8 @@ import Logout from "./pages/auth/Logout.vue"
 import ResetPassword from "./pages/ResetPassword.vue"
 import Home from "./pages/Home.vue"
 import CreatePoll from "./pages/admin/CreatePoll.vue"
+import ViewPoll from "./pages/admin/ViewPoll.vue"
+import Vote from "./pages/user/Vote.vue"
 
 Vue.use(VueRouter)
 
@@ -57,6 +59,18 @@ Vue.router = new VueRouter({
             path: "/create_poll",
             component: CreatePoll,
             name: "CreatePoll"
+        },
+        
+        {
+            path: "/poll/:id",
+            component: ViewPoll,
+            name: "ViewPoll"
+        },
+        
+        {
+            path: "/vote/:id",
+            component: Vote,
+            name: "Vote"
         },
     ]
 })
