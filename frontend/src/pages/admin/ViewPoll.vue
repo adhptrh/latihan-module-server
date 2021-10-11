@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Navbar />
+        <!-- <Navbar /> -->
         <div class="mx-5">
             <div class="bg-white p-3 rounded shadow">
                 <p class="fw-bold">{{(pollData.title) ? pollData.title:"Loading..." }}</p>
@@ -23,7 +23,6 @@ import Navbar from "../../components/Navbar.vue"
 
 export default {
     components: {
-        Navbar
     },
 
     data() {

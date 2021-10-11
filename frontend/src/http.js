@@ -3,7 +3,7 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 
 const config = axios.create({
-    baseURL:"http://localhost:8000/api/",
+    baseURL:"http://172.30.24.23:8000/api/",
     timeout:30000
 })
 

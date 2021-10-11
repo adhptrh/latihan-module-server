@@ -1,21 +1,23 @@
 <template>
     <div>
-        <Navbar />
         <div class="mx-5">
             <div class="bg-white p-3 rounded shadow">
-                <p class="fw-bold">{{(pollData.title) ? pollData.title:"Loading..." }}</p>
-                <p>Vote Result</p>
+                <h2 class="fw-bold">{{(pollData.title) ? pollData.title:"Loading..." }}</h2>
+                <h5 class="">{{(pollData.description) ? pollData.description:"Loading..." }}</h5>
                 <div v-if="doneVote === false">
+                    <p>Your choice</p>
                     <div v-for="choice, index in pollData.choices" :key="index">
-                        <button @click="vote(choice.id)" class="btn w-100 text-left bg-light rounded mb-3">
+                        <div class="w-100 d-flex text-left bg-light rounded mb-3">
                             <p class="m-0 position-absolute ms-3 fw-bold" style="top:4px">{{`${choice.choice} `}}</p>
                             <div class="bg-light py-3 rounded overflow-hidden" :style='{"width":"100%"}'>
                                 <p class="m-0 ms-3 position-absolute text-black fw-bold" style="top:4px">{{`${choice.choice} `}}</p>
                             </div>
-                        </button>
+                            <button class="btn btn-primary" @click="vote(choice.id)">Vote</button>
+                        </div>
                     </div>
                 </div>
                 <div v-else>
+                    <p>Vote Result</p>
                     <div v-for="choice, index in pollData.result" :key="index">
                         <div class="bg-light rounded mb-3">
                             <p class="m-0 position-absolute ms-3 fw-bold" style="top:4px">{{`${choice.choice} (${choice.point}%)`}}</p>
@@ -35,7 +37,6 @@ import Navbar from "../../components/Navbar.vue"
 
 export default {
     components: {
-        Navbar
     },
 
     data() {

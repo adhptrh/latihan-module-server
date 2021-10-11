@@ -1,6 +1,5 @@
 <template>
     <div>
-        <Navbar />
 
         <HomeAdmin v-if="admin === true" />
         <HomeUser v-else/>
@@ -16,7 +15,6 @@ export default {
     components: {
         HomeAdmin,
         HomeUser,
-        Navbar
     },
     data() {
         return {

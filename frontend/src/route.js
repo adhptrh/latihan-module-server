@@ -52,25 +52,49 @@ Vue.router = new VueRouter({
         {
             path: "/logout",
             component: Logout,
-            name: "Logout"
+            name: "Logout",
+            meta: {
+                guard: ["admin", "user"],
+                routeDenied: {
+                    name:"Home"
+                }
+            }
         },
         
         {
             path: "/create_poll",
             component: CreatePoll,
-            name: "CreatePoll"
+            name: "CreatePoll",
+            meta: {
+                guard: ["admin"],
+                routeDenied: {
+                    name:"Home"
+                }
+            }
         },
         
         {
             path: "/poll/:id",
             component: ViewPoll,
-            name: "ViewPoll"
+            name: "ViewPoll",
+            meta: {
+                guard: ["admin"],
+                routeDenied: {
+                    name:"Home"
+                }
+            }
         },
         
         {
             path: "/vote/:id",
             component: Vote,
-            name: "Vote"
+            name: "Vote",
+            meta: {
+                guard: ["user"],
+                routeDenied: {
+                    name:"Home"
+                }
+            }
         },
     ]
 })

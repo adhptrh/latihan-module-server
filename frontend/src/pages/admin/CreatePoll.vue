@@ -1,6 +1,6 @@
 <template>
     <div>
-        <Navbar />
+        <!-- <Navbar /> -->
         <div class="mx-5">
             <div v-if="message.length > 0" class="alert" :class="{'alert-success':successCreated, 'alert-danger':!successCreated}">
                 {{message}}
@@ -30,7 +30,6 @@ import Navbar from "../../components/Navbar.vue"
 
 export default {
     components: {
-        Navbar
     },
 
     data() {
@@ -54,9 +53,15 @@ export default {
             }
         },
 
+        deleteChoice(i) {
+            this.form.choices.splice(i,1)
+        },
+
         submit(e) {
             e.preventDefault();
-            this.form.choices.pop();
+            if (this.form.choices[this.form.choices.length-1] === "") {
+                this.form.choices.pop();
+            }
             this.$http({
                 url:"poll",
                 method:"post",
@@ -70,10 +75,6 @@ export default {
                 this.successCreated = false
             })
         },
-
-        deleteChoice(i) {
-            this.form.choices.splice(i,1)
-        }
     },
 
 }

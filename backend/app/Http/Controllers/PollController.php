@@ -57,7 +57,7 @@ class PollController extends Controller
     public function getAllPoll() {
         $user = auth()->user();
 
-        $polls = Poll::with(["choices"])->get()->toArray();
+        $polls = Poll::with(["choices"])->orderBy('id','DESC')->get()->toArray();
 
         for ($i=0;$i<count($polls);$i++) {
 			$today = date("Y-m-d H:i:s");
