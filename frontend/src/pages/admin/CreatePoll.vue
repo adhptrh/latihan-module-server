@@ -10,6 +10,7 @@
                 <form @submit="submit" class="form-group">
                     <input v-model="form.title" class="form-control mb-3" placeholder="Title" required>
                     <input v-model="form.description" class="form-control mb-3" placeholder="Description" required>
+                    <p>Deadline</p>
                     <input v-model="form.deadline" class="form-control mb-3" type="datetime-local" placeholder="Deadline" required>
                     <p>Choices</p>
                     <div>
@@ -26,6 +27,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import Navbar from "../../components/Navbar.vue"
 
 export default {
@@ -47,7 +49,6 @@ export default {
 
     methods:{
         addNewChoice(e) {
-            console.log(e)
             if (e === this.form.choices.length - 1) {
                 this.form.choices.push("")
             }

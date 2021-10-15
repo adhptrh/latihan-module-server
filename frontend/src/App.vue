@@ -14,6 +14,15 @@ export default {
   },
   mounted() {
     console.log(this.$route)
+    this.$http.interceptors.response.use(function (response) {
+        return response;
+    }, function (error) {
+        if (401 === error.response.status) {
+            this.$router.push({name:"Login"})
+        } else {
+            return Promise.reject(error);
+        }
+    });
   }
 }
 </script>

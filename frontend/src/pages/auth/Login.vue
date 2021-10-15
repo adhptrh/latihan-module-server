@@ -31,6 +31,15 @@ export default {
             failedMessage: ""
         }
     },
+
+    mounted() {
+        if (localStorage.getItem("error") === "unauthorized") {
+            this.loginFailed = true
+            this.failedMessage = "Unauthorized"
+            localStorage.clear()
+        }
+    },
+
     methods: {
         login() {
             this.$http({

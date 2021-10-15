@@ -3,7 +3,7 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 
 const config = axios.create({
-    baseURL:"http://172.30.24.23:8000/api/",
+    baseURL:process.env.VUE_APP_API_URL,
     timeout:30000
 })
 
@@ -20,6 +20,19 @@ config.interceptors.request.use(
     error => Promise.reject(error)
 )
 
+config.interceptors.response.use((response) => {
+    if(response.status === 401) {
+         alert("You are not authorized");
+    }
+    return response;
+}, (error) => {
+    if (error.response.status === 401) {
+        localStorage.clear()
+        localStorage.setItem("error","unauthorized")
+        window.location = "/login"
+    }
+    return Promise.reject(error.message);
+});
 
 Vue.use(VueAxios, config)
 

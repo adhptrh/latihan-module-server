@@ -67,12 +67,14 @@ export default {
         },
 
         vote(id) {
-            this.$http({
-                url:`poll/${this.pollId}/vote/${id}`,
-                method:"post"
-            }).then(res=>{
-                this.getPollData()
-            })
+            if (confirm('Are you sure you want to vote?')) {
+                this.$http({
+                    url:`poll/${this.pollId}/vote/${id}`,
+                    method:"post"
+                }).then(res=>{
+                    this.getPollData()
+                })
+            }
         }
     }
 
