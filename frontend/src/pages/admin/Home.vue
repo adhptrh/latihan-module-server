@@ -20,6 +20,7 @@
                             <td :class='[(new Date() > new Date(n.deadline)) ? "text-danger":"text-success"]'>{{n.deadline}}</td>
                             <td>
                                 <button @click="$router.push('poll/'+n.id)" class="btn btn-primary">Results</button>
+								<button @click="deletePoll(n.id)" class="btn ms-3 p-0"><i class="bi-trash text-danger"></i></button>
                             </td>
                         </tr>
                     </tbody>

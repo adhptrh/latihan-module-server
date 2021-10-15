@@ -3,13 +3,16 @@ import axios from "axios";
 import VueAxios from "vue-axios";
 
 const config = axios.create({
-    baseURL:process.env.VUE_APP_API_URL,
+    baseURL:"https://backend.labsvokasi.com/api/",
     timeout:30000
 })
 
 config.interceptors.request.use(
     config=>{
         let token = localStorage.getItem("token")
+		config.headers["Access-Control-Allow-Origin"] = "*"
+		config.headers["Access-Control-Allow-Methods"] = "*"
+		config.headers["Access-Control-Allow-Headers"] = "*"
         if (token) {
             config.headers.Authorization = "Bearer "+token
         } else {
